@@ -1,5 +1,7 @@
 import java.time.LocalDate
 
+import scala.util.matching.Regex
+
 /**
   * Created by marius on 23.04.16.
   */
@@ -23,12 +25,49 @@ case class Fee(transactionDate: LocalDate, buyDate: Option[String], description:
 object ExpensesCalculation {
 
     def calculateExpenses(transactions: Seq[BankTransaction]): Seq[(String, BigDecimal)] = {
-        groupExpenses(transactions.map { trans =>
+        val groupedByShop = groupExpenses(transactions.map { trans =>
             trans.description -> trans.amount
         })
+
+        val groupedByCategory = groupedByShop.map { case (shop, amount) =>
+            mapShopToCategory(shop).toString -> amount
+        }
+
+        groupExpenses(groupedByCategory)
     }
 
     def groupExpenses(transactions: Seq[(String, BigDecimal)]): Seq[(String, BigDecimal)] = {
         transactions.groupBy(_._1).mapValues(_.map(_._2).sum).toSeq.sortBy(_._2)
+    }
+
+    object Category extends Enumeration {
+        val Groceries = Value("Dagligvare")
+        val Gasoline = Value("Bensin")
+        val Unknown = Value("Ukjent")
+    }
+
+    val shopToCategory = {
+        import Category._
+
+        Map[String, Category.Value](
+            "coop obs" -> Groceries
+            , "Coop Mega" -> Groceries
+            , "Extra" -> Groceries
+            , "Bunnpris" -> Groceries
+            , "Rema" -> Groceries
+            , "Kiwi" -> Groceries
+
+            , "Statoil" -> Gasoline
+            , "Shell" -> Gasoline
+        )
+    }
+    def mapShopToCategory(shop: String): ExpensesCalculation.Category.Value = {
+        shopToCategory.filterKeys { shopNameKey: String =>
+            val regex = new Regex(s".*${shopNameKey.toLowerCase}.*")
+            shop.toLowerCase match {
+                case regex() => true
+                case _ => false
+            }
+        }.values.headOption.getOrElse(Category.Unknown)
     }
 }

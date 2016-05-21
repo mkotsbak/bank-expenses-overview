@@ -29,6 +29,7 @@ object ExpensesCalculation {
             trans.description -> trans.amount
         })
 
+        println("By shop:\n" + groupedByShop.mkString("\n"))
         val groupedByCategory = groupedByShop.map { case (shop, amount) =>
             mapShopToCategory(shop).toString -> amount
         }
@@ -43,6 +44,7 @@ object ExpensesCalculation {
     object Category extends Enumeration {
         val Groceries = Value("Dagligvare")
         val Gasoline = Value("Bensin")
+        val Clothes = Value("Klær")
         val Unknown = Value("Ukjent")
     }
 
@@ -56,9 +58,13 @@ object ExpensesCalculation {
             , "Bunnpris" -> Groceries
             , "Rema" -> Groceries
             , "Kiwi" -> Groceries
+            , "Europris" -> Groceries
 
             , "Statoil" -> Gasoline
+            , "CIRCLE K" -> Gasoline
             , "Shell" -> Gasoline
+
+            , "H&M" -> Clothes
         )
     }
     def mapShopToCategory(shop: String): ExpensesCalculation.Category.Value = {

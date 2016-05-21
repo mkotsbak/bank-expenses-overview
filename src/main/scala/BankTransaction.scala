@@ -23,6 +23,12 @@ case class Fee(transactionDate: LocalDate, buyDate: Option[String], description:
 object ExpensesCalculation {
 
     def calculateExpenses(transactions: Seq[BankTransaction]): Seq[(String, BigDecimal)] = {
-        transactions.groupBy(_.description).mapValues(_.map(_.amount).sum).toSeq.sortBy(_._2)
+        groupExpenses(transactions.map { trans =>
+            trans.description -> trans.amount
+        })
+    }
+
+    def groupExpenses(transactions: Seq[(String, BigDecimal)]): Seq[(String, BigDecimal)] = {
+        transactions.groupBy(_._1).mapValues(_.map(_._2).sum).toSeq.sortBy(_._2)
     }
 }

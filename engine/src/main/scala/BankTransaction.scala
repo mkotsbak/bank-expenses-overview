@@ -1,3 +1,4 @@
+
 import java.time.LocalDate
 
 import scala.util.matching.Regex
@@ -24,7 +25,7 @@ case class Fee(transactionDate: LocalDate, buyDate: Option[String], description:
 
 object ExpensesCalculation {
 
-    def calculateExpenses(transactions: Seq[BankTransaction]): Seq[(String, BigDecimal)] = {
+    def calculateExpenses(transactions: List[BankTransaction]): Seq[(String, BigDecimal)] = {
         val groupedByShop = groupExpenses(transactions.map { trans =>
             trans.description -> trans.amount
         })

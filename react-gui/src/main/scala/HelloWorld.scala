@@ -21,30 +21,42 @@ object TutorialApp extends JSApp {
         <.div("Hello!",
           "Select input file:",
           <.input(^.`type` := "file", ^.onChange ==> { e: ReactEventI =>
-            Callback.alert("File: " + e.target.value + ", files: " + e.target.files.length + ", first: " + e.target.files(0).name ) >>
             props(e.target.files(0))
           }
           )
         )
       }.build
 
-  val Results = ReactComponentB[List[BankTransaction]]("Results")
+  val Transactions = ReactComponentB[List[BankTransaction]]("Results")
     .render_P { props =>
-      <.div("Transactions:",
+      <.div(<.b("Transactions:"), <.br,
         props.map { tx =>
-          <.p(tx.toString)
+          <.span(tx.toString, <.br)
         }
       )
     }.build
 
-  case class MainState(selectedFile: Option[File], results: List[BankTransaction])
+  val Results = ReactComponentB[Seq[(String, BigDecimal)]]("Results")
+    .render_P { props =>
+      <.div(<.b("Results:"),
+        <.table(
+          props.map { cat =>
+            <.tr(
+              <.td(cat._1),
+              <.td(cat._2.toString())
+            )
+          }
+        )
+      )
+    }.build
+
+  case class MainState(selectedFile: Option[File], transactions: List[BankTransaction], results: Seq[(String, BigDecimal)])
   val MainView = ReactComponentB[Unit]("Main view")
-      .initialState[MainState](MainState(None, List.empty))
+      .initialState[MainState](MainState(None, List.empty, Seq.empty))
       .render { $ =>
         <.div(
           SelectFile(
             { file =>
-              dom.window.alert("File selected: " + file)
               $.modState(_.copy(selectedFile = Some(file))) >>
                 Callback {
                   val fr = new FileReader
@@ -52,25 +64,19 @@ object TutorialApp extends JSApp {
                   fr.onloadend = { ev: ProgressEvent =>
                     val fileContent = fr.result.asInstanceOf[String].lines
                     GjensidigeBankImporter.parseCSVString(fileContent)
-                      .map { res =>
-                        println("Res: \n" + res.toString())
-                        $.modState(_.copy(results = res)).runNow()
+                      .map { transactions =>
+                        val res = ExpensesCalculation.calculateExpenses(transactions)
+                        $.modState(_.copy(transactions = transactions, results = res)).runNow()
                       }
                   }
                 }
             }),
+          Transactions($.state.transactions),
           Results($.state.results)
         )
     }.build
 
   def main(): Unit = {
-    println("Hello world!")
-    val res = GjensidigeBankImporter.parseCSVString(
-      Seq("Dato\tType\tBeskrivelse\tBeløp",
-        "01.01.2016\tVarekjøp\t28.04 COOP OBS! LADE HAAKON VII-S TRONDHEIM\t-384.56",
-        "02.01.2016\tVarekjøp\t28.04 COOP OBS! BYGG HAAKON VIIGT TRONDHEIM\t-343.9").iterator)
-    println("Res: \n" + res.map(_.toString()).getOrElse("Ingen"))
-
     ReactDOM.render(MainView(), document.body)
   }
 }

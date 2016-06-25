@@ -30,8 +30,28 @@ lazy val cli = (project in file("cli")).settings(
 
 lazy val reactGui = (project in file("react-gui")).settings(
   scalaVersion := scalaV,
+  persistLauncher in Compile := true,
+  persistLauncher in Test := false,
 
   libraryDependencies ++= Seq(
-    "org.scala-js" %%% "scalajs-dom" % "0.9.0"
-  )
+    "org.scala-js" %%% "scalajs-dom" % "0.9.0",
+    "com.github.japgolly.scalajs-react" %%% "core" % "0.11.1"
+  ),
+
+  jsDependencies ++= Seq(
+  "org.webjars.bower" % "react" % "15.1.0" / "react-with-addons.js"
+    minified "react-with-addons.min.js"
+    commonJSName "React",
+
+  "org.webjars.bower" % "react" % "15.1.0" / "react-dom.js"
+    minified  "react-dom.min.js"
+    dependsOn "react-with-addons.js"
+    commonJSName "ReactDOM",
+
+  "org.webjars.bower" % "react" % "15.1.0"
+    /         "react-dom-server.js"
+    minified  "react-dom-server.min.js"
+    dependsOn "react-dom.js"
+    commonJSName "ReactDOMServer")
+
 ).enablePlugins(ScalaJSPlugin).dependsOn(engineJs)

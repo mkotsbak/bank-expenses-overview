@@ -38,28 +38,28 @@ object GjensidigeBankImporter extends CSVImporter {
         import cats.implicits._
         import cats.std.option
 
-        csvInput.map { line =>
-            def value(field: String) = line(header.indexOf(field))
+        csvInput.flatMap { line =>
+          def value(field: String) = line(header.indexOf(field))
 
-            val date = line.head
-            val descriptionRaw = value("Beskrivelse")
-            val amount = BigDecimal(value("Beløp"))
+          val date = line.head
+          val descriptionRaw = value("Beskrivelse")
+          val amount = BigDecimal(value("Beløp"))
 
-            val BuyDate = "(\\*\\d+)?.?(\\d+\\.\\d+)? (.*)".r
-            val (buyDate, description) = descriptionRaw match {
-              case BuyDate(_, aBuyDate, text) => (Some(aBuyDate), text)
-              case _ => (None, descriptionRaw)
-            }
+          val BuyDate = "(\\*\\d+)?.?(\\d+\\.\\d+)? (.*)".r
+          val (buyDate, description) = descriptionRaw match {
+            case BuyDate(_, aBuyDate, text) => (Some(aBuyDate), text)
+            case _ => (None, descriptionRaw)
+          }
 
-            val kjopt = "KJ.PT".r
-              value("Type") match {
-                case "Varekjøp" => Some(
-                  parseDate(date).toIor.map(parsedDate =>
-                    GoodsBuy(transactionDate = parsedDate, buyDate = buyDate, description = description, amount = amount)
-                  )
-                )
-                case _ => None
-            }
-        }.flatten.sequenceU
+          val kjopt = "KJ.PT".r
+          value("Type") match {
+            case "Varekjøp" => Some(
+              parseDate(date).toIor.map(parsedDate =>
+                GoodsBuy(transactionDate = parsedDate, buyDate = buyDate, description = description, amount = amount)
+              )
+            )
+            case _ => None
+          }
+        }.sequenceU
     }
 }

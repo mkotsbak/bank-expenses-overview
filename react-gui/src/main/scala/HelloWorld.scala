@@ -3,8 +3,6 @@
   */
 
 
-import japgolly.scalajs.react.{Callback, CallbackTo, ReactComponentB, ReactDOM}
-import org.scalajs.dom
 import org.scalajs.dom.raw.FileReader
 import org.scalajs.dom.{File, ProgressEvent, document}
 
@@ -51,26 +49,31 @@ object TutorialApp extends JSApp {
     }.build
 
   case class MainState(selectedFile: Option[File], transactions: List[BankTransaction], results: Seq[(String, BigDecimal)])
+
+  class MainBackend($: BackendScope[Unit, MainState]) {
+    def handleFileSelected(file: File): Callback = {
+      $.modState(_.copy(selectedFile = Some(file))) >>
+        Callback {
+          val fr = new FileReader
+          fr.readAsText(file)
+          fr.onloadend = { ev: ProgressEvent =>
+            val fileContent = fr.result.asInstanceOf[String].lines
+            GjensidigeBankImporter.parseCSVString(fileContent)
+              .map { transactions =>
+                val res = ExpensesCalculation.calculateExpenses(transactions)
+                $.modState(_.copy(transactions = transactions, results = res)).runNow()
+              }
+          }
+        }
+    }
+  }
+
   val MainView = ReactComponentB[Unit]("Main view")
       .initialState[MainState](MainState(None, List.empty, Seq.empty))
+      .backend(new MainBackend(_))
       .render { $ =>
         <.div(
-          SelectFile(
-            { file =>
-              $.modState(_.copy(selectedFile = Some(file))) >>
-                Callback {
-                  val fr = new FileReader
-                  fr.readAsText(file)
-                  fr.onloadend = { ev: ProgressEvent =>
-                    val fileContent = fr.result.asInstanceOf[String].lines
-                    GjensidigeBankImporter.parseCSVString(fileContent)
-                      .map { transactions =>
-                        val res = ExpensesCalculation.calculateExpenses(transactions)
-                        $.modState(_.copy(transactions = transactions, results = res)).runNow()
-                      }
-                  }
-                }
-            }),
+          SelectFile($.backend.handleFileSelected),
           Transactions($.state.transactions),
           Results($.state.results)
         )

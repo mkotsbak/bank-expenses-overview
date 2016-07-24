@@ -3,6 +3,8 @@
   */
 
 
+import ExpensesCalculation.Category
+import japgolly.scalajs.react.{BackendScope, Callback, ReactComponentB}
 import org.scalajs.dom.raw.FileReader
 import org.scalajs.dom.{File, ProgressEvent, document}
 
@@ -34,21 +36,30 @@ object TutorialApp extends JSApp {
       )
     }.build
 
-  val Results = ReactComponentB[Seq[(String, BigDecimal)]]("Results")
+  val CategoryResult = ReactComponentB[
+    (Category.Value, Seq[BankTransaction], BigDecimal)]("Category result")
+    .render_P { props =>
+      <.tr(
+        <.td(props ._1.toString),
+        <.td(props._3.toString()),
+        <.td(props._2.toString())
+      )
+    }.build
+
+  val Results = ReactComponentB[Seq[(Category.Value, Seq[BankTransaction], BigDecimal)]]("Results")
     .render_P { props =>
       <.div(<.b("Results:"),
         <.table(
-          props.map { cat =>
-            <.tr(
-              <.td(cat._1),
-              <.td(cat._2.toString())
-            )
-          }
+          props.map(
+            CategoryResult(_)
+          )
         )
       )
     }.build
 
-  case class MainState(selectedFile: Option[File], transactions: List[BankTransaction], results: Seq[(String, BigDecimal)])
+  case class MainState(selectedFile: Option[File], transactions: List[BankTransaction],
+                       results: Seq[(Category.Value, Seq[BankTransaction], BigDecimal)]
+                      )
 
   class MainBackend($: BackendScope[Unit, MainState]) {
     def handleFileSelected(file: File): Callback = {

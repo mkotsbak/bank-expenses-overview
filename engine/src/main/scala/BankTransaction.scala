@@ -25,21 +25,29 @@ case class Fee(transactionDate: LocalDate, buyDate: Option[String], description:
 
 object ExpensesCalculation {
 
-    def calculateExpenses(transactions: List[BankTransaction]): Seq[(String, BigDecimal)] = {
-        val groupedByShop = groupExpenses(transactions.map { trans =>
-            trans.description -> trans.amount
-        })
+    def calculateExpenses(transactions: List[BankTransaction]):
+      Seq[(ExpensesCalculation.Category.Value, Seq[BankTransaction], BigDecimal)] = {
+        val groupedByShop = groupExpensesByShop(transactions)
 
         println("By shop:\n" + groupedByShop.mkString("\n"))
-        val groupedByCategory = groupedByShop.map { case (shop, amount) =>
-            mapShopToCategory(shop).toString -> amount
+        val groupedByCategory = groupedByShop.map { case (shop, txs, amount) =>
+            (mapShopToCategory(shop), txs, amount)
         }
 
-        groupExpenses(groupedByCategory)
+        groupExpensesByCategories(groupedByCategory)
     }
 
-    def groupExpenses(transactions: Seq[(String, BigDecimal)]): Seq[(String, BigDecimal)] = {
-        transactions.groupBy(_._1).mapValues(_.map(_._2).sum).toSeq.sortBy(_._2)
+    def groupExpensesByShop(transactions: List[BankTransaction]): Seq[(String, List[BankTransaction], BigDecimal)] = {
+        transactions.groupBy(_.description).map(txs =>
+            (txs._1, txs._2, txs._2.map(_.amount).sum)
+        ) .toSeq.sortBy(_._3)
+    }
+
+    def groupExpensesByCategories(transactions: Seq[(Category.Value, List[BankTransaction], BigDecimal)]):
+      Seq[(ExpensesCalculation.Category.Value, Seq[BankTransaction], BigDecimal)] ={
+        transactions.groupBy(_._1).map(txs =>
+            (txs._1 , txs._2.flatMap(_._2) , txs._2.map(_._3).sum)
+        ).toSeq.sortBy(_._3)
     }
 
     object Category extends Enumeration {

@@ -26,7 +26,7 @@ case class Fee(transactionDate: LocalDate, buyDate: Option[String], description:
 object ExpensesCalculation {
 
     def calculateExpenses(transactions: List[BankTransaction]):
-      Seq[(ExpensesCalculation.Category.Value, Seq[BankTransaction], BigDecimal)] = {
+      Seq[(ExpensesCalculation.Category.Value, List[BankTransaction], BigDecimal)] = {
         val groupedByShop = groupExpensesByShop(transactions)
 
         println("By shop:\n" + groupedByShop.mkString("\n"))
@@ -44,9 +44,9 @@ object ExpensesCalculation {
     }
 
     def groupExpensesByCategories(transactions: Seq[(Category.Value, List[BankTransaction], BigDecimal)]):
-      Seq[(ExpensesCalculation.Category.Value, Seq[BankTransaction], BigDecimal)] ={
+      Seq[(ExpensesCalculation.Category.Value, List[BankTransaction], BigDecimal)] ={
         transactions.groupBy(_._1).map(txs =>
-            (txs._1 , txs._2.flatMap(_._2) , txs._2.map(_._3).sum)
+            (txs._1 , txs._2.flatMap(_._2).toList, txs._2.map(_._3).sum)
         ).toSeq.sortBy(_._3)
     }
 

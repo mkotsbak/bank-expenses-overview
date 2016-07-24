@@ -37,16 +37,19 @@ object TutorialApp extends JSApp {
     }.build
 
   val CategoryResult = ReactComponentB[
-    (Category.Value, Seq[BankTransaction], BigDecimal)]("Category result")
-    .render_P { props =>
+    (Category.Value, List[BankTransaction], BigDecimal)]("Category result")
+    .initialState_P(_._1 == Category.Unknown)
+    .renderPS { ($, props, state) =>
       <.tr(
-        <.td(props ._1.toString),
-        <.td(props._3.toString()),
-        <.td(props._2.toString())
-      )
-    }.build
+        <.td(props._1.toString),
+        <.td(props._3.toString),
+        <.td(s"Details ${if (state) "-" else "+"} >",
+          state ?= Transactions(props._2),
+          ^.onClick --> $.modState(!_)
+        )
+      )}.build
 
-  val Results = ReactComponentB[Seq[(Category.Value, Seq[BankTransaction], BigDecimal)]]("Results")
+  val Results = ReactComponentB[Seq[(Category.Value, List[BankTransaction], BigDecimal)]]("Results")
     .render_P { props =>
       <.div(<.b("Results:"),
         <.table(
@@ -58,7 +61,7 @@ object TutorialApp extends JSApp {
     }.build
 
   case class MainState(selectedFile: Option[File], transactions: List[BankTransaction],
-                       results: Seq[(Category.Value, Seq[BankTransaction], BigDecimal)]
+                       results: Seq[(Category.Value, List[BankTransaction], BigDecimal)]
                       )
 
   class MainBackend($: BackendScope[Unit, MainState]) {

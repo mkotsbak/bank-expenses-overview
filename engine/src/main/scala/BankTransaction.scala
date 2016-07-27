@@ -25,29 +25,30 @@ case class Fee(transactionDate: LocalDate, buyDate: Option[String], description:
 
 object ExpensesCalculation {
 
-    def calculateExpenses(transactions: List[BankTransaction]):
-      Seq[(ExpensesCalculation.Category.Value, List[BankTransaction], BigDecimal)] = {
+    def calculateExpenses(transactions: List[BankTransaction]): List[CatogoryExpense] = {
         val groupedByShop = groupExpensesByShop(transactions)
 
         println("By shop:\n" + groupedByShop.mkString("\n"))
-        val groupedByCategory = groupedByShop.map { case (shop, txs, amount) =>
-            (mapShopToCategory(shop), txs, amount)
-        }
 
-        groupExpensesByCategories(groupedByCategory)
+        groupExpensesByCategories(groupedByShop)
     }
 
-    def groupExpensesByShop(transactions: List[BankTransaction]): Seq[(String, List[BankTransaction], BigDecimal)] = {
-        transactions.groupBy(_.description).map(txs =>
-            (txs._1, txs._2, txs._2.map(_.amount).sum)
-        ) .toSeq.sortBy(_._3)
+    case class ShopExpense(shopName: String, transactions: List[BankTransaction]) {
+        lazy val sum = transactions.map(_.amount).sum
+    }
+    case class CatogoryExpense(category: Category.Value, shopExpenses: List[ShopExpense]) {
+      lazy val sum = shopExpenses.map(_.sum).sum
     }
 
-    def groupExpensesByCategories(transactions: Seq[(Category.Value, List[BankTransaction], BigDecimal)]):
-      Seq[(ExpensesCalculation.Category.Value, List[BankTransaction], BigDecimal)] ={
-        transactions.groupBy(_._1).map(txs =>
-            (txs._1 , txs._2.flatMap(_._2).toList, txs._2.map(_._3).sum)
-        ).toSeq.sortBy(_._3)
+    def groupExpensesByShop(transactions: List[BankTransaction]): List[ShopExpense] = {
+        transactions.groupBy(_.description).map(ShopExpense.tupled)
+          .toList.sortBy(_.sum)
+    }
+
+    def groupExpensesByCategories(shopExpenses: List[ShopExpense]): List[CatogoryExpense] = {
+        shopExpenses.groupBy(shopExpense => mapShopToCategory(shopExpense.shopName)).map(
+          CatogoryExpense.tupled)
+            .toList.sortBy(_.sum)
     }
 
     object Category extends Enumeration {

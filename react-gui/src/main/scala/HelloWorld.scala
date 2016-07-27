@@ -3,8 +3,7 @@
   */
 
 
-import ExpensesCalculation.Category
-import japgolly.scalajs.react.{BackendScope, Callback, ReactComponentB}
+import ExpensesCalculation.{Category, CatogoryExpense, ShopExpense}
 import org.scalajs.dom.raw.FileReader
 import org.scalajs.dom.{File, ProgressEvent, document}
 
@@ -36,20 +35,44 @@ object TutorialApp extends JSApp {
       )
     }.build
 
-  val CategoryResult = ReactComponentB[
-    (Category.Value, List[BankTransaction], BigDecimal)]("Category result")
-    .initialState_P(_._1 == Category.Unknown)
+  val ShopResult = ReactComponentB[ShopExpense]("Category result")
+    .initialState(false)
     .renderPS { ($, props, state) =>
       <.tr(
-        <.td(props._1.toString),
-        <.td(props._3.toString),
-        <.td(s"Details ${if (state) "-" else "+"} >",
-          state ?= Transactions(props._2),
-          ^.onClick --> $.modState(!_)
+        <.td(props.shopName),
+        <.td(props.sum.toString()),
+        <.td(
+          <.button(s"Details (${props.transactions.size}) ${if (state) "-" else "+"} >",
+            ^.onClick --> $.modState(!_)),
+          state ?= Transactions(props.transactions)
         )
       )}.build
 
-  val Results = ReactComponentB[Seq[(Category.Value, List[BankTransaction], BigDecimal)]]("Results")
+  val ShopResults = ReactComponentB[List[ShopExpense]]("Results")
+    .render_P { props =>
+      <.div(<.b("Results:"),
+        <.table(
+          props.map(
+            ShopResult(_)
+          )
+        )
+      )
+    }.build
+
+  val CategoryResult = ReactComponentB[CatogoryExpense]("Category result")
+    .initialState_P(_.category == Category.Unknown)
+    .renderPS { ($, props, state) =>
+      <.tr(
+        <.td(props.category.toString),
+        <.td(props.sum.toString()),
+        <.td(
+          <.button(s"Details (${props.shopExpenses.size}) ${if (state) "-" else "+"} >",
+            ^.onClick --> $.modState(!_)),
+          state ?= ShopResults(props.shopExpenses)
+        )
+      )}.build
+
+  val Results = ReactComponentB[List[CatogoryExpense]]("Results")
     .render_P { props =>
       <.div(<.b("Results:"),
         <.table(
@@ -60,9 +83,7 @@ object TutorialApp extends JSApp {
       )
     }.build
 
-  case class MainState(selectedFile: Option[File], transactions: List[BankTransaction],
-                       results: Seq[(Category.Value, List[BankTransaction], BigDecimal)]
-                      )
+  case class MainState(selectedFile: Option[File], transactions: List[BankTransaction], results: List[CatogoryExpense])
 
   class MainBackend($: BackendScope[Unit, MainState]) {
     def handleFileSelected(file: File): Callback = {
@@ -83,13 +104,13 @@ object TutorialApp extends JSApp {
   }
 
   val MainView = ReactComponentB[Unit]("Main view")
-      .initialState[MainState](MainState(None, List.empty, Seq.empty))
+      .initialState[MainState](MainState(None, List.empty, List.empty))
       .backend(new MainBackend(_))
       .render { $ =>
         <.div(
           SelectFile($.backend.handleFileSelected),
-          Transactions($.state.transactions),
-          Results($.state.results)
+          Results($.state.results),
+          Transactions($.state.transactions)
         )
     }.build
 

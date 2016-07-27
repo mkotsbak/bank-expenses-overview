@@ -42,7 +42,7 @@ object TutorialApp extends JSApp {
         <.td(props.shopName),
         <.td(props.sum.toString()),
         <.td(
-          <.button(s"Details (${props.transactions.size}) ${if (state) "-" else "+"} >",
+          <.button(s"Details (${props.transactions.size}) ${if (state) "<-<" else "++>"}",
             ^.onClick --> $.modState(!_)),
           state ?= Transactions(props.transactions)
         )
@@ -66,7 +66,7 @@ object TutorialApp extends JSApp {
         <.td(props.category.toString),
         <.td(props.sum.toString()),
         <.td(
-          <.button(s"Details (${props.shopExpenses.size}) ${if (state) "-" else "+"} >",
+          <.button(s"Details (${props.shopExpenses.size}) ${if (state) "<--" else "++>"}",
             ^.onClick --> $.modState(!_)),
           state ?= ShopResults(props.shopExpenses)
         )

@@ -53,7 +53,9 @@ object ExpensesCalculation {
     object Category extends Enumeration {
         val Groceries = Value("Dagligvare")
         val Gasoline = Value("Bensin")
+        val Parking = Value("Parkering")
         val Clothes = Value("Klær")
+        val Taxi = Value("Taxi")
         val Unknown = Value("Ukjent")
     }
 
@@ -63,15 +65,25 @@ object ExpensesCalculation {
         Map[String, Category.Value](
             "coop obs" -> Groceries
             , "Coop Mega" -> Groceries
+            , "Coop Prix" -> Groceries
+            , "Coop Byggmix" -> Groceries
             , "Extra" -> Groceries
             , "Bunnpris" -> Groceries
             , "Rema" -> Groceries
             , "Kiwi" -> Groceries
             , "Europris" -> Groceries
+            , "Meny" -> Groceries
+            , "Joker" -> Groceries
 
             , "Statoil" -> Gasoline
             , "CIRCLE K" -> Gasoline
             , "Shell" -> Gasoline
+
+            , "Parkering" -> Parking
+            , "Parker" -> Parking
+            , "Time park" -> Parking
+
+            , "Taxi" -> Taxi
 
             , "H&M" -> Clothes
         )

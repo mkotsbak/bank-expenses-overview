@@ -3,8 +3,8 @@ import java.time.LocalDate
 import cats.data.Ior
 
 object NordnetImporter extends CSVImporter {
-    override def importFromCSV(header: Seq[String], csvInput: List[Seq[String]]): String Ior List[BankTransaction] = {
-        Ior.Right(
+    override def importFromCSV(header: Seq[String], csvInput: List[Seq[String]]): String Either List[BankTransaction] = {
+        Right(
             csvInput.toList.flatMap { line =>
                 def value(field: String) = line(header.indexOf(field))
 

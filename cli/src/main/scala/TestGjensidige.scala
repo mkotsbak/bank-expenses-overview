@@ -5,7 +5,7 @@ import scala.io.{Codec, Source}
   * Created by marius on 23.04.16.
   */
 object TestGjensidige extends App {
-    val inputLines = Source.fromFile(args.head)(Codec.UTF8).getLines()
+    val inputLines = Source.fromFile(args.head)(Codec.ISO8859).getLines()
     val transRes = GjensidigeBankImporter.parseCSVString(inputLines)
 
     val res = transRes map { trans =>

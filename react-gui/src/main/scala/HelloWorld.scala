@@ -3,6 +3,8 @@
   */
 
 
+import java.time.temporal.ChronoUnit
+
 import ExpensesCalculation.{Category, CatogoryExpense, ShopExpense}
 import org.scalajs.dom.raw.FileReader
 import org.scalajs.dom.{File, ProgressEvent, document}
@@ -59,25 +61,34 @@ object TutorialApp extends JSApp {
       )
     }.build
 
-  val CategoryResult = ReactComponentB[CatogoryExpense]("Category result")
-    .initialState_P(_.category == Category.Unknown)
+  val CategoryResult = ReactComponentB[(CatogoryExpense, Float)]("Category result")
+    .initialState_P(_._1.category == Category.Unknown)
     .renderPS { ($, props, state) =>
+      val category = props._1
       <.tr(
-        <.td(props.category.toString),
-        <.td(props.sum.toString()),
+        <.td(category.category.toString),
+        <.td(category.sum.toString()),
+        <.td(category.sum.toFloat / props._2),
         <.td(
-          <.button(s"Details (${props.shopExpenses.size}) ${if (state) "<--" else "++>"}",
+          <.button(s"Details (${category.shopExpenses.size}) ${if (state) "<--" else "++>"}",
             ^.onClick --> $.modState(!_)),
-          state ?= ShopResults(props.shopExpenses)
+          state ?= ShopResults(category.shopExpenses)
         )
       )}.build
 
-  val Results = ReactComponentB[List[CatogoryExpense]]("Results")
+  val Results = ReactComponentB[(List[CatogoryExpense], Float)]("Results")
     .render_P { props =>
       <.div(<.b("Results:"),
         <.table(
-          props.map(
-            CategoryResult(_)
+          <.thead(
+            <.tr(
+              <.td("Category"), <.td("Sum"), <.td("Per month"), <.td("Details")
+            )
+          ),
+          <.tbody(
+            props._1.map( category =>
+              CategoryResult( (category, props._2) )
+            )
           )
         )
       )
@@ -90,7 +101,7 @@ object TutorialApp extends JSApp {
       $.modState(_.copy(selectedFile = Some(file))) >>
         Callback {
           val fr = new FileReader
-          fr.readAsText(file)
+          fr.readAsText(file, "LATIN1")
           fr.onloadend = { ev: ProgressEvent =>
             val fileContent = fr.result.asInstanceOf[String].lines
             GjensidigeBankImporter.parseCSVString(fileContent)
@@ -107,9 +118,16 @@ object TutorialApp extends JSApp {
       .initialState[MainState](MainState(None, List.empty, List.empty))
       .backend(new MainBackend(_))
       .render { $ =>
+        val monthsInPeriod = {
+          for {
+            last <- $.state.transactions.lastOption
+            first <- $.state.transactions.headOption
+          } yield ChronoUnit.DAYS.between(last.transactionDate, first.transactionDate) / 30.5f
+        }.getOrElse(0f)
+
         <.div(
           SelectFile($.backend.handleFileSelected),
-          Results($.state.results),
+          Results( ($.state.results, monthsInPeriod) ),
           Transactions($.state.transactions)
         )
     }.build

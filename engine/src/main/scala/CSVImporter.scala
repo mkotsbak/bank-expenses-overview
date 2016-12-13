@@ -5,5 +5,5 @@ import cats.data.Ior
   */
 
 trait CSVImporter {
-    def importFromCSV(header: Seq[String], csvInput: List[Seq[String]]): String Ior List[BankTransaction]
+    def importFromCSV(header: Seq[String], csvInput: List[Seq[String]]): String Either List[BankTransaction]
 }

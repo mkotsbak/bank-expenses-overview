@@ -133,6 +133,6 @@ object GjensidigeBankExpensesReactApp extends JSApp {
     }.build
 
   def main(): Unit = {
-    ReactDOM.render(MainView(), document.body)
+    ReactDOM.render(MainView(), document.getElementById("reactapp"))
   }
 }

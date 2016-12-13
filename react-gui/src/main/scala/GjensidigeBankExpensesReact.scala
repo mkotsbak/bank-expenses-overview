@@ -11,7 +11,7 @@ import org.scalajs.dom.{File, ProgressEvent, document}
 
 import scala.scalajs.js.JSApp
 
-object TutorialApp extends JSApp {
+object GjensidigeBankExpensesReactApp extends JSApp {
 
   import japgolly.scalajs.react.vdom.prefix_<^._
   import japgolly.scalajs.react._

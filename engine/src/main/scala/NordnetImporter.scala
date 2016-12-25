@@ -1,6 +1,6 @@
-import java.time.LocalDate
 
 import cats.data.Ior
+import org.threeten.bp.LocalDate
 
 object NordnetImporter extends CSVImporter {
     override def importFromCSV(header: Seq[String], csvInput: List[Seq[String]]): String Either List[BankTransaction] = {

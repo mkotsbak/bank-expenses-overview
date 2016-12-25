@@ -15,9 +15,9 @@ resolvers += Resolver.sonatypeRepo("snapshots")
 lazy val engine = (crossProject.crossType(CrossType.Pure) in file("engine")).settings(
   scalaVersion := scalaV,
   libraryDependencies ++= Seq(
-    "org.scala-js" %%% "scalajs-java-time" % "0.2.0",
-    "org.typelevel" %%% "cats" % "0.8.1"
-    //"threetenbpcross" %%% "threetenbpcross" % "0.1-SNAPSHOT"
+    //"org.scala-js" %%% "scalajs-java-time" % "0.2.0",
+    "org.typelevel" %%% "cats" % "0.8.1",
+    "io.github.cquiroz" %%% "scala-java-time" % "2.0.0-M6"
     //"org.mdedetrich" %%% "soda-time" % "0.0.1-SNAPSHOT"
   )
 ).enablePlugins(ScalaJSPlugin)

@@ -3,11 +3,12 @@
   */
 
 
-import java.time.temporal.ChronoUnit
+import java.util.Locale
 
 import ExpensesCalculation.{Category, CatogoryExpense, ShopExpense}
 import org.scalajs.dom.raw.FileReader
 import org.scalajs.dom.{File, ProgressEvent, document}
+import org.threeten.bp.temporal.ChronoUnit
 
 import scala.scalajs.js.JSApp
 
@@ -133,6 +134,15 @@ object GjensidigeBankExpensesReactApp extends JSApp {
     }.build
 
   def main(): Unit = {
+    //Locale.setDefault(Locale.GERMAN)// //new Locale("NO", "no"))
+
+    import locales.LocaleRegistry
+    import locales.cldr.data.nb_NO
+
+    // Install the locale
+    LocaleRegistry.installLocale(nb_NO)
+
+    Locale.setDefault(Locale.forLanguageTag("nb-NO"))
     ReactDOM.render(MainView(), document.getElementById("reactapp"))
   }
 }

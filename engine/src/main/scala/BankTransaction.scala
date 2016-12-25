@@ -1,5 +1,6 @@
 
-import java.time.LocalDate
+import org.threeten.bp.LocalDate
+import org.threeten.bp.format.{DateTimeFormatter, FormatStyle}
 
 import scala.util.matching.Regex
 
@@ -15,7 +16,7 @@ sealed abstract class BankTransaction {
     val amount: BigDecimal
 
     override def toString = {
-        s"Date: $transactionDate, buy date: ${buyDate.getOrElse("N/A")}, amount: $amount, description: $description"
+        s"Date: ${transactionDate.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))}, buy date: ${buyDate.getOrElse("N/A")}, amount: $amount, description: $description"
     }
 }
 

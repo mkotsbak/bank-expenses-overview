@@ -1,6 +1,6 @@
-import java.time.LocalDate
 
-import cats.data.Ior
+import org.threeten.bp.LocalDate
+import org.threeten.bp.format.DateTimeFormatter
 
 import scala.util.Try
 
@@ -18,7 +18,11 @@ object GjensidigeBankImporter extends CSVImporter {
   }
 
   def parseDate(date: String): String Either LocalDate = {
-    //LocalDate.parse(date, DateTimeFormatter.ofPattern("dd.MM.yyyy"))
+    Try {
+      LocalDate.parse(date, DateTimeFormatter.ofPattern("dd.MM.yyyy"))
+    }.toEither.left.map(_ => "Invalid date: " + date)
+
+    /*
     val pattern = "(\\d+)\\.(\\d+)\\.(\\d+)".r
     date match {
       case pattern(day, month, year) =>
@@ -27,7 +31,7 @@ object GjensidigeBankImporter extends CSVImporter {
         }.toEither.left.map(_.toString)
       case _ => Left("Invalid date: " + date)
     }
-
+    */
   }
 
   override def importFromCSV(header: Seq[String], csvInput: List[Seq[String]]): String Either List[BankTransaction] = {

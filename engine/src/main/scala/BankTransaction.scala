@@ -1,5 +1,5 @@
 
-import org.threeten.bp.LocalDate
+import org.threeten.bp.{LocalDate, Month}
 import org.threeten.bp.format.{DateTimeFormatter, FormatStyle}
 
 import scala.util.matching.Regex
@@ -39,6 +39,13 @@ object ExpensesCalculation {
     }
     case class CatogoryExpense(category: Category.Value, shopExpenses: List[ShopExpense]) {
       lazy val sum = shopExpenses.map(_.sum).sum
+      lazy val allTransactions = shopExpenses.flatMap(_.transactions)
+
+      def avgPerMonth(monthsInPeriod: Float): Float = sum.toFloat / monthsInPeriod
+      lazy val avg: Float = allTransactions.map(_.amount.toFloat).sum / allTransactions.size
+        lazy val perMonth: Map[Month, BigDecimal] = {
+            allTransactions.groupBy(_.transactionDate.getMonth).mapValues(_.map(_.amount).sum)
+        }
     }
 
     def groupExpensesByShop(transactions: List[BankTransaction]): List[ShopExpense] = {

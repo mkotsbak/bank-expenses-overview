@@ -8,6 +8,8 @@ import java.util.Locale
 import ExpensesCalculation.{Category, CatogoryExpense, ShopExpense}
 import org.scalajs.dom.raw.FileReader
 import org.scalajs.dom.{File, ProgressEvent, document}
+import org.threeten.bp.Month
+import org.threeten.bp.format.TextStyle
 import org.threeten.bp.temporal.ChronoUnit
 
 import scala.scalajs.js.JSApp
@@ -35,6 +37,23 @@ object GjensidigeBankExpensesReactApp extends JSApp {
         props.map { tx =>
           <.span(tx.toString, <.br)
         }
+      )
+    }.build
+
+  val ExpensesPerMonth = ReactComponentB[Map[Month, BigDecimal]]("Sums per month")
+    .render_P { props =>
+      <.table(
+        <.thead(
+          <.td("Month"),
+          <.td("Sum")
+        ),
+        <.tbody(
+          props.toList.sortBy(_._1.getValue).map { case (month, sum) =>
+            <.tr(
+              <.td(month.getDisplayName(TextStyle.FULL, Locale.getDefault).capitalize), <.td(sum.toString)
+            )
+          }
+        )
       )
     }.build
 
@@ -69,11 +88,12 @@ object GjensidigeBankExpensesReactApp extends JSApp {
       <.tr(
         <.td(category.category.toString),
         <.td(category.sum.toString()),
-        <.td(category.sum.toFloat / props._2),
+        <.td(category.avgPerMonth(props._2)),
         <.td(
           <.button(s"Details (${category.shopExpenses.size}) ${if (state) "<--" else "++>"}",
             ^.onClick --> $.modState(!_)),
-          state ?= ShopResults(category.shopExpenses)
+          state ?= ShopResults(category.shopExpenses),
+          state ?= ExpensesPerMonth(category.perMonth)
         )
       )}.build
 

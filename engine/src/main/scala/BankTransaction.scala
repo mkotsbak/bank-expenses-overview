@@ -85,6 +85,8 @@ object ExpensesCalculation {
             , "Joker" -> Groceries
 
             , "Statoil" -> Gasoline
+            , "Esso" -> Gasoline
+            , "Best" -> Gasoline
             , "CIRCLE K" -> Gasoline
             , "Shell" -> Gasoline
 

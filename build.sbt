@@ -2,7 +2,7 @@ name := "bank-expenses-overview"
 
 version := "1.0"
 
-val scalaV = "2.12.1" //"2.11.8"
+val scalaV = "2.12.2" //"2.11.8"
 scalaVersion := scalaV
 val reactVersion = "15.4.1"
 
@@ -16,8 +16,8 @@ lazy val engine = (crossProject.crossType(CrossType.Pure) in file("engine")).set
   scalaVersion := scalaV,
   libraryDependencies ++= Seq(
     //"org.scala-js" %%% "scalajs-java-time" % "0.2.0",
-    "org.typelevel" %%% "cats" % "0.8.1",
-    "io.github.cquiroz" %%% "scala-java-time" % "2.0.0-M6"
+    "org.typelevel" %%% "cats" % "0.9.0",
+    "io.github.cquiroz" %%% "scala-java-time" % "2.0.0-M10"
     //"org.mdedetrich" %%% "soda-time" % "0.0.1-SNAPSHOT"
   )
 ).enablePlugins(ScalaJSPlugin)

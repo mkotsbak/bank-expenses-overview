@@ -2,9 +2,9 @@ name := "bank-expenses-overview"
 
 version := "1.0"
 
-val scalaV = "2.12.2" //"2.11.8"
+val scalaV = "2.12.5" //"2.11.8"
 scalaVersion := scalaV
-val reactVersion = "15.4.1"
+val reactVersion = "15.4.2"
 
 resolvers += Resolver.sonatypeRepo("public")
 resolvers += Resolver.sonatypeRepo("snapshots")
@@ -17,7 +17,7 @@ lazy val engine = (crossProject.crossType(CrossType.Pure) in file("engine")).set
   libraryDependencies ++= Seq(
     //"org.scala-js" %%% "scalajs-java-time" % "0.2.0",
     "org.typelevel" %%% "cats" % "0.9.0",
-    "io.github.cquiroz" %%% "scala-java-time" % "2.0.0-M10"
+    "io.github.cquiroz" %%% "scala-java-time" % "2.0.0-M13"
     //"org.mdedetrich" %%% "soda-time" % "0.0.1-SNAPSHOT"
   )
 ).enablePlugins(ScalaJSPlugin)
@@ -31,12 +31,12 @@ lazy val cli = (project in file("cli")).settings(
 
 lazy val reactGui = (project in file("react-gui")).settings(
   scalaVersion := scalaV,
-  persistLauncher in Compile := true,
-  persistLauncher in Test := false,
+  scalaJSUseMainModuleInitializer in Compile := true,
+  scalaJSUseMainModuleInitializer in Test := false,
 
   libraryDependencies ++= Seq(
-    "org.scala-js" %%% "scalajs-dom" % "0.9.1",
-    "com.github.japgolly.scalajs-react" %%% "core" % "0.11.3"
+    "org.scala-js" %%% "scalajs-dom" % "0.9.5",
+    "com.github.japgolly.scalajs-react" %%% "core" % "0.11.5"
   ),
 
   jsDependencies ++= Seq(

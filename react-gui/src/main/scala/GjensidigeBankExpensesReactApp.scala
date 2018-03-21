@@ -9,14 +9,13 @@ import ExpensesCalculation.{Category, CatogoryExpense, ShopExpense}
 import org.scalajs.dom
 import org.scalajs.dom.raw.FileReader
 import org.scalajs.dom.{File, ProgressEvent, document}
-import org.threeten.bp.Month
-import org.threeten.bp.format.TextStyle
-import org.threeten.bp.temporal.ChronoUnit
+import java.time.Month
+import java.time.format.TextStyle
+import java.time.temporal.ChronoUnit
 
-import scala.scalajs.js.JSApp
 import dom.window
 
-object GjensidigeBankExpensesReactApp extends JSApp {
+object GjensidigeBankExpensesReactApp {
 
   import japgolly.scalajs.react.vdom.prefix_<^._
   import japgolly.scalajs.react._
@@ -156,7 +155,7 @@ object GjensidigeBankExpensesReactApp extends JSApp {
         )
     }.build
 
-  def main(): Unit = {
+  def main(args: Array[String]): Unit = {
     //Locale.setDefault(Locale.GERMAN)// //new Locale("NO", "no"))
 
     import locales.LocaleRegistry
@@ -166,6 +165,11 @@ object GjensidigeBankExpensesReactApp extends JSApp {
     LocaleRegistry.installLocale(nb_NO)
 
     Locale.setDefault(Locale.forLanguageTag("nb-NO"))
-    ReactDOM.render(MainView(), document.getElementById("reactapp"))
+    try {
+      ReactDOM.render(MainView(), document.getElementById("reactapp"))
+    }
+    catch {
+      case ex: Exception => ex.printStackTrace()
+    }
   }
 }

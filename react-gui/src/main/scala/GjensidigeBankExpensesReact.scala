@@ -6,6 +6,7 @@
 import java.util.Locale
 
 import ExpensesCalculation.{Category, CatogoryExpense, ShopExpense}
+import org.scalajs.dom
 import org.scalajs.dom.raw.FileReader
 import org.scalajs.dom.{File, ProgressEvent, document}
 import org.threeten.bp.Month
@@ -13,6 +14,7 @@ import org.threeten.bp.format.TextStyle
 import org.threeten.bp.temporal.ChronoUnit
 
 import scala.scalajs.js.JSApp
+import dom.window
 
 object GjensidigeBankExpensesReactApp extends JSApp {
 
@@ -126,7 +128,8 @@ object GjensidigeBankExpensesReactApp extends JSApp {
           fr.onloadend = { ev: ProgressEvent =>
             val fileContent = fr.result.asInstanceOf[String].lines
             GjensidigeBankImporter.parseCSVString(fileContent)
-              .map { transactions =>
+              .left.map(window.alert)
+              .foreach { transactions =>
                 val res = ExpensesCalculation.calculateExpenses(transactions)
                 $.modState(_.copy(transactions = transactions, results = res)).runNow()
               }

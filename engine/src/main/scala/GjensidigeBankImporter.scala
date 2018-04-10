@@ -37,28 +37,39 @@ object GjensidigeBankImporter extends CSVImporter {
   override def importFromCSV(header: Seq[String], csvInput: List[Seq[String]]): String Either List[BankTransaction] = {
     import cats.implicits._
 
-    csvInput.flatMap { line =>
-      def value(field: String) = line(header.indexOf(field))
+    def value(field: String) = {
+      val idx = header.indexOf(field)
+      if (idx < 0) Left(s"Field $field not found")
+      else Right((line: Seq[String]) => line(idx))
+    }
 
-      val date = line.head
-      val descriptionRaw = value("Beskrivelse")
-      val amount = BigDecimal(value("Beløp").replace(',', '.'))
+    val BuyDate = "(\\*\\d+)?.?(\\d+\\.\\d+)? (.*)".r
 
-      val BuyDate = "(\\*\\d+)?.?(\\d+\\.\\d+)? (.*)".r
-      val (buyDate, description) = descriptionRaw match {
-        case BuyDate(_, aBuyDate, text) => (Some(aBuyDate), text)
-        case _ => (None, descriptionRaw)
-      }
+    for (
+      descriptionRaw <- value("Beskrivelse");
+      amountRow <- value("Beløp");
+      tekstkode <- value("Tekstkode");
+      transactions <- {
+        csvInput.flatMap { line =>
 
-      val kjopt = "KJ.PT".r
-      value("Tekstkode") match {
-        case "VARER" | "VISA VARE" => Some(
-          parseDate(date).map(parsedDate =>
-            GoodsBuy(transactionDate = parsedDate, buyDate = buyDate, description = description, amount = amount)
+        val date = line.head
+        val amount = BigDecimal(amountRow(line).replace(',', '.'))
+
+        val (buyDate, description: String) = descriptionRaw(line) match {
+          case BuyDate(_, aBuyDate, text) => (Some(aBuyDate), text)
+          case _ => (None, descriptionRaw)
+        }
+
+        val kjopt = "KJ.PT".r
+        tekstkode(line) match {
+          case "VARER" | "VISA VARE" => Some(
+            parseDate(date).map(parsedDate =>
+              GoodsBuy(transactionDate = parsedDate, buyDate = buyDate, description = description, amount = amount)
+            )
           )
-        )
-        case _ => None
-      }
-    }.sequenceU
+          case _ => None
+        }
+      }.sequenceU
+    }) yield transactions
   }
 }

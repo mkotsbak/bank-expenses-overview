@@ -48,7 +48,7 @@ object GjensidigeBankImporter extends CSVImporter {
     for (
       descriptionRaw <- value("Beskrivelse");
       amountRow <- value("Beløp");
-      tekstkode <- value("Tekstkode");
+      tekstkode = value("Tekstkode");
       transactions <- {
         csvInput.flatMap { line =>
 
@@ -57,11 +57,10 @@ object GjensidigeBankImporter extends CSVImporter {
 
         val (buyDate, description: String) = descriptionRaw(line) match {
           case BuyDate(_, aBuyDate, text) => (Some(aBuyDate), text)
-          case _ => (None, descriptionRaw)
+          case _ => (None, descriptionRaw(line))
         }
 
-        val kjopt = "KJ.PT".r
-        tekstkode(line) match {
+        tekstkode.map(_(line)).getOrElse("VARER") match {
           case "VARER" | "VISA VARE" => Some(
             parseDate(date).map(parsedDate =>
               GoodsBuy(transactionDate = parsedDate, buyDate = buyDate, description = description, amount = amount)

@@ -125,7 +125,7 @@ object GjensidigeBankExpensesReactApp {
           val fr = new FileReader
           fr.readAsText(file, "LATIN1")
           fr.onloadend = { ev: ProgressEvent =>
-            val fileContent = fr.result.asInstanceOf[String].lines
+            val fileContent = fr.result.asInstanceOf[String].linesIterator
             GjensidigeBankImporter.parseCSVString(fileContent)
               .left.map(window.alert)
               .foreach { transactions =>

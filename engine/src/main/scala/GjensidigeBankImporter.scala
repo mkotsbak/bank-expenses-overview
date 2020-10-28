@@ -68,7 +68,7 @@ object GjensidigeBankImporter extends CSVImporter {
           )
           case _ => None
         }
-      }.sequenceU
+      }.sequence
     }) yield transactions
   }
 }

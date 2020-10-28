@@ -43,8 +43,8 @@ object ExpensesCalculation {
 
       def avgPerMonth(monthsInPeriod: Float): Float = sum.toFloat / monthsInPeriod
       lazy val avg: Float = allTransactions.map(_.amount.toFloat).sum / allTransactions.size
-        lazy val perMonth: Map[Month, BigDecimal] = {
-            allTransactions.groupBy(_.transactionDate.getMonth).mapValues(_.map(_.amount).sum)
+      lazy val perMonth: Map[Month, BigDecimal] = {
+            allTransactions.groupBy(_.transactionDate.getMonth).mapValues(_.map(_.amount).sum).toMap
         }
     }
 

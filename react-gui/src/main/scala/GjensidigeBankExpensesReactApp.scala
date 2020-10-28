@@ -17,31 +17,31 @@ import dom.window
 
 object GjensidigeBankExpensesReactApp {
 
-  import japgolly.scalajs.react.vdom.prefix_<^._
+  import japgolly.scalajs.react.vdom.html_<^._
   import japgolly.scalajs.react._
 
   val SelectFile =
-    ReactComponentB[File => Callback]("No args")
+    ScalaComponent.builder[File => Callback]("No args")
         .render_P { props =>
         <.div("Hello!",
           "Select input file:",
-          <.input(^.`type` := "file", ^.onChange ==> { e: ReactEventI =>
+          <.input(^.`type` := "file", ^.onChange ==> { e: ReactEventFromInput =>
             props(e.target.files(0))
           }
           )
         )
       }.build
 
-  val Transactions = ReactComponentB[List[BankTransaction]]("Results")
+  val Transactions = ScalaComponent.builder[List[BankTransaction]]("Results")
     .render_P { props =>
       <.div(<.b("Transactions:"), <.br,
-        props.map { tx =>
+        props.toVdomArray { tx =>
           <.span(tx.toString, <.br)
         }
       )
     }.build
 
-  val ExpensesPerMonth = ReactComponentB[Map[Month, BigDecimal]]("Sums per month")
+  val ExpensesPerMonth = ScalaComponent.builder[Map[Month, BigDecimal]]("Sums per month")
     .render_P { props =>
       <.table(
         <.thead(
@@ -49,7 +49,7 @@ object GjensidigeBankExpensesReactApp {
           <.td("Sum")
         ),
         <.tbody(
-          props.toList.sortBy(_._1.getValue).map { case (month, sum) =>
+          props.toList.sortBy(_._1.getValue).toVdomArray { case (month, sum) =>
             <.tr(
               <.td(month.getDisplayName(TextStyle.FULL, Locale.getDefault).capitalize), <.td(sum.toString)
             )
@@ -58,7 +58,7 @@ object GjensidigeBankExpensesReactApp {
       )
     }.build
 
-  val ShopResult = ReactComponentB[ShopExpense]("Category result")
+  val ShopResult = ScalaComponent.builder[ShopExpense]("Category result")
     .initialState(false)
     .renderPS { ($, props, state) =>
       <.tr(
@@ -67,23 +67,23 @@ object GjensidigeBankExpensesReactApp {
         <.td(
           <.button(s"Details (${props.transactions.size}) ${if (state) "<-<" else "++>"}",
             ^.onClick --> $.modState(!_)),
-          state ?= Transactions(props.transactions)
+          Transactions(props.transactions).when(state)
         )
       )}.build
 
-  val ShopResults = ReactComponentB[List[ShopExpense]]("Results")
+  val ShopResults = ScalaComponent.builder[List[ShopExpense]]("Results")
     .render_P { props =>
       <.div(<.b("Results:"),
         <.table(
-          props.map(
+          props.toVdomArray(
             ShopResult(_)
           )
         )
       )
     }.build
 
-  val CategoryResult = ReactComponentB[(CatogoryExpense, Float)]("Category result")
-    .initialState_P(_._1.category == Category.Unknown)
+  val CategoryResult = ScalaComponent.builder[(CatogoryExpense, Float)]("Category result")
+    .initialStateFromProps(_._1.category == Category.Unknown)
     .renderPS { ($, props, state) =>
       val category = props._1
       <.tr(
@@ -93,12 +93,12 @@ object GjensidigeBankExpensesReactApp {
         <.td(
           <.button(s"Details (${category.shopExpenses.size}) ${if (state) "<--" else "++>"}",
             ^.onClick --> $.modState(!_)),
-          state ?= ShopResults(category.shopExpenses),
-          state ?= ExpensesPerMonth(category.perMonth)
+          ShopResults(category.shopExpenses).when(state),
+          ExpensesPerMonth(category.perMonth).when(state)
         )
       )}.build
 
-  val Results = ReactComponentB[(List[CatogoryExpense], Float)]("Results")
+  val Results = ScalaComponent.builder[(List[CatogoryExpense], Float)]("Results")
     .render_P { props =>
       <.div(<.b("Results:"),
         <.table(
@@ -108,7 +108,7 @@ object GjensidigeBankExpensesReactApp {
             )
           ),
           <.tbody(
-            props._1.map( category =>
+            props._1.toVdomArray( category =>
               CategoryResult( (category, props._2) )
             )
           )
@@ -137,7 +137,7 @@ object GjensidigeBankExpensesReactApp {
     }
   }
 
-  val MainView = ReactComponentB[Unit]("Main view")
+  val MainView = ScalaComponent.builder[Unit]("Main view")
       .initialState[MainState](MainState(None, List.empty, List.empty))
       .backend(new MainBackend(_))
       .render { $ =>
@@ -156,17 +156,16 @@ object GjensidigeBankExpensesReactApp {
     }.build
 
   def main(args: Array[String]): Unit = {
-    //Locale.setDefault(Locale.GERMAN)// //new Locale("NO", "no"))
 
-    import locales.LocaleRegistry
-    import locales.cldr.data.nb_NO
+    //import locales.cldr.data.nb_NO
 
+    // TODO: use https://github.com/cquiroz/sbt-locales to generate more locales?
     // Install the locale
-    LocaleRegistry.installLocale(nb_NO)
+    //LocaleRegistry.installLocale(nb_NO)
+    //Locale.setDefault(Locale.forLanguageTag("nb-NO"))
 
-    Locale.setDefault(Locale.forLanguageTag("nb-NO"))
     try {
-      ReactDOM.render(MainView(), document.getElementById("reactapp"))
+      MainView().renderIntoDOM(document.getElementById("reactapp"))
     }
     catch {
       case ex: Exception => ex.printStackTrace()

@@ -1,4 +1,3 @@
-import cats.data.Ior
 
 /**
   * Created by marius on 23.04.16.

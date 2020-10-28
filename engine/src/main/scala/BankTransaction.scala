@@ -63,8 +63,13 @@ object ExpensesCalculation {
         val Groceries = Value("Dagligvare")
         val Gasoline = Value("Bensin")
         val Parking = Value("Parkering")
+        val EVCharging = Value("Elbillading")
+        val Restaurant = Value("Restaurant")
         val Clothes = Value("Klær")
         val Taxi = Value("Taxi")
+        val CarHire = Value("Leiebilleie")
+        val Cinema = Value("Kino")
+        val Pharmacia = Value("Apotek")
         val Unknown = Value("Ukjent")
     }
 
@@ -83,6 +88,7 @@ object ExpensesCalculation {
             , "Europris" -> Groceries
             , "Meny" -> Groceries
             , "Joker" -> Groceries
+            , "ICA" -> Groceries
 
             , "Statoil" -> Gasoline
             , "Esso" -> Gasoline
@@ -93,10 +99,36 @@ object ExpensesCalculation {
             , "Parkering" -> Parking
             , "Parker" -> Parking
             , "Time park" -> Parking
+            , "EUROPARK" -> Parking
+
+            , "FIRE FINE" -> Restaurant
+            , "Heidis Bierbar" -> Restaurant
+            , "FIRE FINE" -> Restaurant
+            , "OSKA PIZZERIA" -> Restaurant
+            , "RAUS BAR" -> Restaurant
+            , "DISKOTEKET" -> Restaurant
+            , "Stjordalsbrygg" -> Restaurant
+            , "Berkaak Veikro" -> Restaurant
+            , "HABITAT" -> Restaurant
+            , "Star Kebab" -> Restaurant
+            , "Fresh Fast Food" -> Restaurant
+            , "BURGER KIN" -> Restaurant
+            , "CREDO" -> Restaurant
+            , "7ELEVEN" -> Restaurant
+
+            , "HERTZ" -> CarHire
+
+            , "Kino" -> Cinema
+
+            , "GIANTLEAP ELBIL" -> EVCharging
+            , "DRIVE FORTUM" -> EVCharging
+
+            , "apotek" -> Pharmacia
 
             , "Taxi" -> Taxi
 
             , "H&M" -> Clothes
+            , "Cubus" -> Clothes
         )
     }
     def mapShopToCategory(shop: String): ExpensesCalculation.Category.Value = {

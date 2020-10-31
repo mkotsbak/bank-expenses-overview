@@ -1,0 +1,21 @@
+name: Scala build
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up JVM and SBT
+      uses: olafurpg/setup-scala@v10
+
+    - name: Build project
+      run: sbt compile

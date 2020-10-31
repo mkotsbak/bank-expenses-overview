@@ -7,3 +7,5 @@ Tools to generate an aggregated overview of expenses from bank transactions. Pri
 ## Web gui (Scala.Js-React)
   - sbt reactGui/fastOptJS (sbt reactGui/fullOptJS)
   - open react-gui/index-dev.html in web browser
+
+*[Run current version!](http://mkotsbak.github.io/bank-expenses-overview/react-gui)*
